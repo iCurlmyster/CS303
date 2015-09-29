@@ -1,0 +1,10 @@
+Compile code with c++11
+compile like so:
+
+$	g++ -std=c++11 Lab02.cpp -o Lab02
+
+then Run like so:
+
+$	./Lab02 input100.txt
+
+
