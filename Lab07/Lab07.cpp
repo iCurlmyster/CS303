@@ -15,13 +15,15 @@ class BinaryTreeNode {
 public:
 
 	BinaryTreeNode(): left_child(NULL), right_child(NULL), value(0){}
-	BinaryTreeNode(T val) : left_child(NULL), right_child(NULL){
+	BinaryTreeNode(T val) : left_child(NULL), right_child(NULL)
+	{
 		value =  val;
 	}
-	~BinaryTreeNode(){
+	~BinaryTreeNode()
+	{
 		if (left_child != NULL) delete left_child;
 		if (right_child != NULL) delete right_child;
-	}	
+	}
 
 	void setLeft(BinaryTreeNode<T>* n)
 	{
@@ -36,8 +38,8 @@ public:
 		value = val;
 	}
 	T getValue() const {return value;}
-	BinaryTreeNode<T>* getLeftNode() const {return left_child;}
-	BinaryTreeNode<T>* getRightNode() const {return right_child;}	
+	BinaryTreeNode<T>* getLeftNode() {return left_child;}
+	BinaryTreeNode<T>* getRightNode() {return right_child;}	
 };
 
 template<typename T>
@@ -51,6 +53,26 @@ protected:
 		if (node == NULL || node->getValue() == data) return node;
 		if (data < node->getValue()) return getNode(node->getLeftNode(), data);
 		else return getNode(node->getRightNode(), data);
+	}
+
+	BinaryTreeNode<T>* replaceNode(BinaryTreeNode<T>* n)
+	{
+		auto replaceParent = n;
+		auto replace = n;
+		auto focusNode = n->getRightNode();
+		while (focusNode != NULL)
+		{
+			replaceParent = replace;
+			replace = focusNode;
+			focusNode = focusNode->getLeftNode();
+		}
+
+		if (replace != n->getRightNode())
+		{
+			replaceParent->setLeft(replace->getRightNode());
+			replace->setRight(n->getRightNode()); 
+		}
+		return replace;
 	}
 
 	void printOrder(BinaryTreeNode<T>* node) const
@@ -69,7 +91,7 @@ public:
 		head = new BinaryTreeNode<T>(h);
 	}
 
-	~BinaryTree(){ if (head != NULL) delete head; }
+	~BinaryTree(){ if (head != NULL) delete head;}
 
 	void getHead() const { return head; }
 	void insertNode(T data){
@@ -81,19 +103,113 @@ public:
 		while (x!=NULL)
 		{
 			if (data < x->getValue()){
-				if (x->getLeftNode() == NULL) {x->setLeft(new BinaryTreeNode<T>(data)); x = NULL;}
+				if (x->getLeftNode() == NULL)
+				{
+					auto tmp = new BinaryTreeNode<T>(data);
+					x->setLeft(tmp); 
+					x = NULL;
+				}
 				else x = x->getLeftNode();
 			}
 			else {
-				if (x->getRightNode() == NULL) {x->setRight(new BinaryTreeNode<T>(data)); x = NULL;}
+				if (x->getRightNode() == NULL)
+				{
+					auto tmp = new BinaryTreeNode<T>(data);
+					x->setRight(tmp); 
+					x = NULL;
+				}
 				else x = x->getRightNode();
 			}
 		} // end While		
 	} // end of insertNode
-	BinaryTreeNode<T>* searchNode(T data) const {
+	BinaryTreeNode<T> const * searchNode(T data) const {
 		return getNode(head, data);
 	}
 	void printTree() const { printOrder(head); }
+	bool deleteNode(T data)
+	{
+		auto focusNode = head;
+		auto parentNode = head;
+		bool isALeftChild = true;
+		while (focusNode->getValue() != data)
+		{
+			parentNode = focusNode;
+			if (data < focusNode->getValue())
+			{
+				isALeftChild = true;
+				focusNode = focusNode->getLeftNode();
+			}
+			else 
+			{
+				isALeftChild = false;
+				focusNode = focusNode->getRightNode();
+			}
+			if (focusNode == NULL) return false;
+		}
+		if (focusNode->getLeftNode() == NULL && focusNode->getRightNode() == NULL)
+		{
+			if (focusNode == head)
+			{
+				head = NULL;
+			}
+			else if (isALeftChild)
+			{
+				parentNode->setLeft(NULL);
+			}
+			else
+			{
+				parentNode->setRight(NULL);
+			}
+		}
+		else if (focusNode->getRightNode() == NULL)
+		{
+			if (focusNode == head)
+			{
+				head = focusNode->getLeftNode();
+			}
+			else if (isALeftChild)
+			{
+				parentNode->setLeft(focusNode->getLeftNode());
+			}
+			else
+			{
+				parentNode->setRight(focusNode->getLeftNode());
+			}
+		}
+		else if (focusNode->getLeftNode() == NULL)
+		{
+			if (focusNode == head)
+			{
+				head = focusNode->getRightNode();
+			}
+			else if (isALeftChild)
+			{
+				parentNode->setLeft(focusNode->getRightNode());
+			}
+			else
+			{
+				parentNode->setRight(focusNode->getRightNode());
+			}
+		}
+		else
+		{
+			auto replacementNode = this->replaceNode(focusNode);
+			if (focusNode == head)
+			{
+				head = replacementNode;
+			}
+			else if (isALeftChild)
+			{
+				parentNode->setLeft(replacementNode);
+			}
+			else
+			{
+				parentNode->setRight(replacementNode);
+			}
+			replacementNode->setLeft(focusNode->getLeftNode());
+		}
+		return true;
+	}
 
 };
 
@@ -123,7 +239,11 @@ int main(int argc, const char * argv[])
 	cout<<"Searched for 5, function returned = "<<five_node->getValue()<<endl;
 	auto zero_node = tree->searchNode(0);
 	cout<<"Searched for 0, function returned = "<<zero_node->getValue()<<endl;
-
+	
+	cout<<"Deleting Node 5"<<endl;
+	tree->deleteNode(5);
+	cout<<"Deleting Node 0"<<endl;
+	tree->deleteNode(0);
 	cout<<"Printing tree: ";
 	tree->printTree();
 	cout<<endl;
