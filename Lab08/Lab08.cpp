@@ -32,7 +32,7 @@ int main(int argc, const char * argv[])
 //	tree->deleteNode(5);
 //	cout<<"Deleting Node 0"<<endl;
 //	tree->deleteNode(0);
-	cout<<"Printing tree: ";
+	cout<<"Printing tree: "<<endl;
 	tree->printTree();
 	cout<<endl;
 	delete tree;

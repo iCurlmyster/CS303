@@ -2,6 +2,7 @@
 #define B_TREE_HPP
 
 #include <iostream>
+#include <string>
 #include "RBNode.hpp"
 using namespace std;
 
@@ -38,15 +39,15 @@ protected:
 		return replace;
 	}
 
-	void printOrder(NODE* node) const
+	void printOrder(NODE* node, string buf = "   ") const
 	{
 		if (node != NULL)
 		{
-			printOrder(node->getLeftNode());
-			cout<<"|"<<node->getValue()<<":";
-			if (node->getColor() == red) cout<<"red";
-			else cout<<"black";
-			printOrder(node->getRightNode());
+			printOrder(node->getLeftNode(), buf + buf);
+			cout<<buf<<node->getValue()<<":";
+			if (node->getColor() == red) cout<<"red"<<endl;
+			else cout<<"black"<<endl;;
+			printOrder(node->getRightNode(), buf + buf);
 		}
 	}
 
@@ -65,7 +66,7 @@ public:
 			return;
 		}
 		auto x = head;
-		NODE* tmp;
+		NODE* tmp = NULL;
 		while (x!=NULL)
 		{
 			if (data < x->getValue()){
@@ -89,7 +90,6 @@ public:
 				else x = x->getRightNode();
 			}
 		} // end While
-		cout<<"Calling rb_insert_fixup!"<<endl;
 		this->rb_insert_fixup(tmp, data);		
 	} // end of insertNode
 	NODE const * searchNode(T data) const {
